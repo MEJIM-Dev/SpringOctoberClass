@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class GetController {
@@ -54,12 +56,12 @@ public class GetController {
     }
 
     @GetMapping(value = "/category/{unique}")
-    public ArrayList<?> getCategory(
+    public List<?> getCategory(
             @PathVariable("unique") String category
     ){
         System.out.println(category);
         if(category.equals("users")){
-            return users;
+            return userRepository.findAll();
         } 
         if(category.equals("tests")){
             return tests;
@@ -74,8 +76,6 @@ public class GetController {
         System.out.println(user);
         System.out.println(save);
         return save;
-//        System.out.println(user);
-//        return user;
     }
 
     @CrossOrigin
@@ -84,5 +84,15 @@ public class GetController {
         boolean average = num > 49 ? true : false;
         response.setStatus(400);
         return new ResponseEntity<>("Failed", HttpStatus.BAD_REQUEST);
+    }
+
+    @GetMapping("/user")
+    public ResponseEntity<?> user(@RequestParam("id") long num){
+        Optional<User> byId = userRepository.findById(num);
+        if(byId.isEmpty()){
+//            byId.get().getFirstname();
+            return new ResponseEntity<>("No user by that id", HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(byId.get(), HttpStatus.OK);
     }
 }
