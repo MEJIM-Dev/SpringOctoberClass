@@ -2,6 +2,8 @@ package First.Spring.controller;
 
 import First.Spring.model.Test;
 import First.Spring.model.User;
+import First.Spring.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +22,14 @@ public class GetController {
                     new User("Ken","Sarah")
             )
     );
+
+    @Autowired
+    private UserRepository userRepository;
+
+
+//    public GetController(UserRepository userRepository){
+//        this.userRepository = userRepository;
+//    }
 
     @CrossOrigin
     @RequestMapping(value = "/")
@@ -60,8 +70,12 @@ public class GetController {
     @CrossOrigin
     @PostMapping("/json")
     public User submitData(@RequestBody User user){
+        User save = userRepository.save(user);
         System.out.println(user);
-        return user;
+        System.out.println(save);
+        return save;
+//        System.out.println(user);
+//        return user;
     }
 
     @CrossOrigin
