@@ -95,4 +95,23 @@ public class GetController {
         }
         return new ResponseEntity<>(byId.get(), HttpStatus.OK);
     }
+
+    @PatchMapping("/user/update/email")
+    public String updateUser(@RequestBody User user){
+        if(user.getEmail().equals("") || user.getEmail()==null) {
+            return "Email cannot be empty";
+        }
+        if(user.getId()==0){
+            return "id cannot be empty";
+        }
+        Optional<User> byId = userRepository.findById(user.getId());
+        if(byId.isEmpty() ){
+            return "user doesn't exist";
+        }
+        User dbUser = byId.get();
+        dbUser.setEmail(user.getEmail());
+        userRepository.save(dbUser);
+        return "user updated";
+    }
+
 }
