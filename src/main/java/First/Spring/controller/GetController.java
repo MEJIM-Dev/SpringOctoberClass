@@ -1,18 +1,25 @@
 package First.Spring.controller;
 
+import First.Spring.dto.UserDTO;
 import First.Spring.model.Test;
 import First.Spring.model.User;
 import First.Spring.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+// JDBC JPA(java persistence api)
+//JPQL(java persistence query language) SQL(native)
 
 @RestController
 public class GetController {
@@ -55,6 +62,7 @@ public class GetController {
         return tests;
     }
 
+    @CrossOrigin
     @GetMapping(value = "/category/{unique}")
     public List<?> getCategory(
             @PathVariable("unique") String category
@@ -71,8 +79,8 @@ public class GetController {
 
     @CrossOrigin
     @PostMapping("/json")
-    public User submitData(@RequestBody User user){
-        User save = userRepository.save(user);
+    public User submitData(@Valid @RequestBody UserDTO user){
+        User save = userRepository.save(user.getUser());
         System.out.println(user);
         System.out.println(save);
         return save;
@@ -97,12 +105,13 @@ public class GetController {
     }
 
     @PatchMapping("/user/update/email")
-    public String updateUser(@RequestBody User user){
-        if(user.getEmail().equals("") || user.getEmail()==null) {
-            return "Email cannot be empty";
+    public String updateUser(@Valid @RequestBody UserDTO user){
+        if(user==null) return "Invalid request body";
+        if(user.getEmail()==null || user.getEmail().equals("")) {
+            return "Invalid Email";
         }
-        if(user.getId()==0){
-            return "id cannot be empty";
+        if(user.getId()<1){
+            return "Invalid id";
         }
         Optional<User> byId = userRepository.findById(user.getId());
         if(byId.isEmpty() ){
@@ -110,8 +119,19 @@ public class GetController {
         }
         User dbUser = byId.get();
         dbUser.setEmail(user.getEmail());
-        userRepository.save(dbUser);
+//        userRepository.save(dbUser);
         return "user updated";
+    }
+
+    @GetMapping("users/count")
+    public String usersCount(@RequestParam String name, Pageable pageable){
+        long count = userRepository.count();
+//        userRepository.findByFirstname("asghashg");
+        Page<User> byFirstname = userRepository.findByFirstname(name, pageable);
+        System.out.println("content: "+byFirstname.getContent());
+        System.out.println("total Pages: "+byFirstname.getTotalPages());
+        System.out.println("total Users: "+byFirstname.getTotalElements());
+        return String.valueOf(count);
     }
 
 }
