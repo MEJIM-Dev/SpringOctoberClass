@@ -91,6 +91,7 @@ public class GetController {
     public ResponseEntity<?> sample(@RequestParam("number") int num, HttpServletResponse response){
         boolean average = num > 49 ? true : false;
         response.setStatus(400);
+        userRepository.save(new User());
         return new ResponseEntity<>("Failed", HttpStatus.BAD_REQUEST);
     }
 
