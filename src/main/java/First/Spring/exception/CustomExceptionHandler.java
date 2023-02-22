@@ -7,6 +7,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,15 +29,15 @@ public class CustomExceptionHandler {
             map.put("object",error.getObjectName());
             list.add(map);
         }
-//        e.getFieldErrors().forEach((error)-> {
-//            Map map = new HashMap<>();
-//            map.put("field",error.getField());
-//            map.put("message",error.getDefaultMessage());
-//            map.put("object",error.getObjectName());
-//            list.add(map);
-//        });
         res.put("data", list);
-//        System.out.println(e.getFieldErrors());
         return new ResponseEntity<>(res, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = SQLIntegrityConstraintViolationException.class)
+    public ResponseEntity<?> SQLIntegrityConstraintViolationExceptionMethod(SQLIntegrityConstraintViolationException e){
+        Map<String, Object> res = new HashMap<>();
+        res.put("message",e.getMessage());
+        res.put("status",HttpStatus.INTERNAL_SERVER_ERROR.value());
+        return new ResponseEntity<>(res,HttpStatus.EXPECTATION_FAILED);
     }
 }
